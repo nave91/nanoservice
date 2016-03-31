@@ -1,0 +1,14 @@
+#! /home/vagrant/.venv/bin/python
+import logging
+
+from nanoservice.bin.cliutils import Parser, Initialize
+
+if __name__ == '__main__':
+
+    logging.root.handlers = []
+
+    parser = Parser.get_parser()
+    args = parser.parse_args()
+    init_obj = Initialize()
+    init_obj.set_args(args)
+    init_obj.run()
