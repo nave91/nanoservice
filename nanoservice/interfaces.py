@@ -1,10 +1,10 @@
+import psutil
 from multiprocessing.managers import SyncManager
 
 try:
     from processmanager import ProcessManager
 except ImportError:
     from nanoservice.processmanager import ProcessManager
-#from code import MyCodeManager
 
 
 class ServiceInterface:
@@ -26,6 +26,9 @@ class ServiceInterface:
     def query(self, name, input):
         return self.process_managers[name].query(input)
 
+    def get_workers(self, name):
+        return {worker.name: pid for pid, worker in self.process_managers[name].workers.items()}
+
 
 SyncManager.register('service_interface', ServiceInterface)
 service_manager = SyncManager(address=('localhost', 50000), authkey=b'Vf6x132R0W3Ogp')
@@ -45,5 +48,16 @@ class ClientInterface:
         self.connect()
         self.service_interface.create_process_manager(CodeManager, num_of_workers)
         self.service_interface.start_process(CodeManager.name())
+
+    def get_workers(self, CodeManager):
+        return self.service_interface.get_workers(CodeManager.name())
+
+    def controller(self, CodeManager):
+        controller = {}
+        workers = self.get_workers(CodeManager)
+        for name, pid in workers.items():
+            controller[name] = psutil.Process(pid)
+        return controller
+
 
 client_interface = ClientInterface()

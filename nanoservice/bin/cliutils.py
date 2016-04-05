@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from nanoservice.service import service_manager
+from nanoservice.interfaces import service_manager
 
 
 class Initialize(object):
