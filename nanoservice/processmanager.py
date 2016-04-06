@@ -11,16 +11,25 @@ class ProcessManager(object):
         self.num_of_workers = num_of_workers
         self.workers = Worker()
         self.code_manager = CodeManager()
+        self.trained_model = None
+        self.input_queue = None
+        self.output_queue = None
 
     def update_queue(self, input_queue, output_queue):
         self.input_queue = input_queue
         self.output_queue = output_queue
 
-    def code(self, input_queue, output_queue, name):
+    def train(self):
+        self.trained_model = self.code_manager.train()
+        if self.trained_model:
+            return True
+        else:
+            False
+
+    def code(self, code_manager, trained_model, input_queue, output_queue, name):
         print("Entered code of {}".format(name))
-        assert self.code_manager is not None
-        code_manager =  self.code_manager
-        model = code_manager.train()
+        for obj in [code_manager, trained_model, input_queue, output_queue]:
+            assert obj is not None
         while True:
             value = input_queue.get()
             assert type(value) is tuple
@@ -28,11 +37,12 @@ class ProcessManager(object):
             request_id = value[0]
             model_input = value[1]
             validated_input = code_manager.validate_input(model_input)
-            output = code_manager.test(model, validated_input)
+            output = code_manager.test(trained_model, validated_input)
             output_queue.put({request_id: (name, output)})
 
     def create_process(self, name):
-        process = multiprocessing.Process(target=self.code, name=name, args=(self.input_queue, self.output_queue, name))
+        process = multiprocessing.Process(target=self.code, name=name, args=(self.code_manager, self.trained_model,
+                                                                             self.input_queue, self.output_queue, name))
         process.daemon = True
         process.start()
         return process

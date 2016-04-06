@@ -26,6 +26,9 @@ class ServiceInterface:
     def query(self, name, input):
         return self.process_managers[name].query(input)
 
+    def train(self, name):
+        return self.process_managers[name].train()
+
     def get_workers(self, name):
         return {worker.name: pid for pid, worker in self.process_managers[name].workers.items()}
 
@@ -51,6 +54,12 @@ class ClientInterface:
 
     def get_workers(self, CodeManager):
         return self.service_interface.get_workers(CodeManager.name())
+
+    def train(self, CodeManager):
+        return self.service_interface.train(CodeManager.name())
+
+    def query(self, CodeManager):
+        return self.service_interface.query(CodeManager.name())
 
     def controller(self, CodeManager):
         controller = {}
