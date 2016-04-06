@@ -47,7 +47,7 @@ class ClientInterface:
         self.service_interface = service_manager.service_interface()
 
 
-    def register(self, CodeManager, train=False, start=False, num_of_workers=1):
+    def register(self, CodeManager, train=False, start=False, num_of_workers=1, **kwargs):
         self.connect()
         self.service_interface.create_process_manager(CodeManager, num_of_workers)
         if train:
