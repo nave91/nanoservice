@@ -60,8 +60,8 @@ class ClientInterface:
     def start_process_manager(self, CodeManager):
         self.service_interface.start_process(CodeManager.name())
 
-    def query(self, CodeManager):
-        return self.service_interface.query(CodeManager.name())
+    def query(self, CodeManager, input):
+        return self.service_interface.query(CodeManager.name(), input)
 
     def controller(self, CodeManager):
         controller = {}
