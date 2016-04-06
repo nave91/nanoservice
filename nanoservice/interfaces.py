@@ -47,15 +47,19 @@ class ClientInterface:
         self.service_interface = service_manager.service_interface()
 
 
-    def register(self, CodeManager, num_of_workers=1):
+    def register(self, CodeManager, train=False, start=False, num_of_workers=1):
         self.connect()
         self.service_interface.create_process_manager(CodeManager, num_of_workers)
+        if train:
+            self.train(CodeManager)
+        if start:
+            self.start_process_manager(CodeManager)
 
     def get_workers(self, CodeManager):
         return self.service_interface.get_workers(CodeManager.name())
 
-    def train(self, CodeManager):
-        return self.service_interface.train(CodeManager.name())
+    def train(self, code_manager_name):
+        return self.service_interface.train(code_manager_name)
 
     def start_process_manager(self, CodeManager):
         self.service_interface.start_process(CodeManager.name())
@@ -63,9 +67,9 @@ class ClientInterface:
     def query(self, CodeManager, input):
         return self.service_interface.query(CodeManager.name(), input)
 
-    def controller(self, CodeManager):
+    def controller(self, code_manager_name):
         controller = {}
-        workers = self.get_workers(CodeManager)
+        workers = self.get_workers(code_manager_name)
         for name, pid in workers.items():
             controller[name] = psutil.Process(pid)
         return controller
