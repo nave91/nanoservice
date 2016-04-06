@@ -28,8 +28,10 @@ class ProcessManager(object):
 
     def code(self, code_manager, trained_model, input_queue, output_queue, name):
         print("Entered code of {}".format(name))
-        for obj in [code_manager, trained_model, input_queue, output_queue]:
-            assert obj is not None
+        assert code_manager is not None
+        assert trained_model is not None
+        assert input_queue is not None
+        assert output_queue is not None
         while True:
             value = input_queue.get()
             assert type(value) is tuple

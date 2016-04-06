@@ -50,13 +50,15 @@ class ClientInterface:
     def register(self, CodeManager, num_of_workers=1):
         self.connect()
         self.service_interface.create_process_manager(CodeManager, num_of_workers)
-        self.service_interface.start_process(CodeManager.name())
 
     def get_workers(self, CodeManager):
         return self.service_interface.get_workers(CodeManager.name())
 
     def train(self, CodeManager):
         return self.service_interface.train(CodeManager.name())
+
+    def start_process_manager(self, CodeManager):
+        self.service_interface.start_process(CodeManager.name())
 
     def query(self, CodeManager):
         return self.service_interface.query(CodeManager.name())
