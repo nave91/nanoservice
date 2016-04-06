@@ -55,11 +55,11 @@ class ClientInterface:
         if start:
             self.start_process_manager(CodeManager)
 
-    def get_workers(self, CodeManager):
-        return self.service_interface.get_workers(CodeManager.name())
+    def get_workers(self, code_manager_name):
+        return self.service_interface.get_workers(code_manager_name)
 
-    def train(self, code_manager_name):
-        return self.service_interface.train(code_manager_name)
+    def train(self, CodeManager):
+        return self.service_interface.train(CodeManager.name())
 
     def start_process_manager(self, CodeManager):
         self.service_interface.start_process(CodeManager.name())
