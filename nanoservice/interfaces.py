@@ -14,7 +14,7 @@ class ServiceInterface:
 
     def create_process_manager(self, CodeManager, num_of_workers):
         if CodeManager.name not in self.process_managers:
-            self.process_managers[CodeManager.name()] = ProcessManager(CodeManager, num_of_workers)
+            self.process_managers[CodeManager.name()+CodeManager.flavor()] = ProcessManager(CodeManager, num_of_workers)
 
     def start_process(self, name):
         from multiprocessing import Queue
@@ -59,13 +59,13 @@ class ClientInterface:
         return self.service_interface.get_workers(code_manager_name)
 
     def train(self, CodeManager):
-        return self.service_interface.train(CodeManager.name())
+        return self.service_interface.train(CodeManager.name()+CodeManager.flavor())
 
     def start_process_manager(self, CodeManager):
-        self.service_interface.start_process(CodeManager.name())
+        self.service_interface.start_process(CodeManager.name()+CodeManager.flavor())
 
     def query(self, CodeManager, input):
-        return self.service_interface.query(CodeManager.name(), input)
+        return self.service_interface.query(CodeManager.name()+CodeManager.flavor(), input)
 
     def controller(self, code_manager_name):
         controller = {}
