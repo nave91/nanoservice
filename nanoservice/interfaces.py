@@ -1,4 +1,5 @@
 import psutil
+import os
 from multiprocessing.managers import SyncManager
 
 try:
@@ -12,9 +13,11 @@ class ServiceInterface:
     def __init__(self):
         self.process_managers = {}
 
-    def create_process_manager(self, CodeManager, num_of_workers):
+    def create_process_manager(self, CodeManager, num_of_workers, callerpid):
         if CodeManager.name not in self.process_managers:
-            self.process_managers[CodeManager.name()+CodeManager.flavor()] = ProcessManager(CodeManager, num_of_workers)
+            process_manager = ProcessManager(CodeManager=CodeManager, num_of_workers=num_of_workers,
+                                             callerpid=callerpid, parentpid=os.getpid())
+            self.process_managers[CodeManager.name()+CodeManager.flavor()] = process_manager
 
     def start_process(self, name):
         from multiprocessing import Queue
@@ -47,9 +50,9 @@ class ClientInterface:
         self.service_interface = service_manager.service_interface()
 
 
-    def register(self, CodeManager, train=False, start=False, num_of_workers=1, **kwargs):
+    def register(self, CodeManager, callerpid, train=False, start=False, num_of_workers=1, **kwargs):
         self.connect()
-        self.service_interface.create_process_manager(CodeManager, num_of_workers)
+        self.service_interface.create_process_manager(CodeManager, num_of_workers, callerpid)
         if train:
             self.train(CodeManager)
         if start:

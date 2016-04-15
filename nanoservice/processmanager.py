@@ -1,5 +1,13 @@
 import multiprocessing
 import time
+import queue
+import sys
+import psutil
+import logging
+
+
+logger = logging.getLogger('hal')
+
 
 class Worker(dict):
     pass
@@ -7,13 +15,16 @@ class Worker(dict):
 
 class ProcessManager(object):
 
-    def __init__(self, CodeManager, num_of_workers):
+    def __init__(self, CodeManager, num_of_workers, callerpid, parentpid):
+        logger.info()
         self.num_of_workers = num_of_workers
         self.workers = Worker()
         self.code_manager = CodeManager()
         self.trained_model = None
         self.input_queue = None
         self.output_queue = None
+        self.callerpid = callerpid
+        self.parentpid = parentpid
 
     def update_queue(self, input_queue, output_queue):
         self.input_queue = input_queue
@@ -32,15 +43,22 @@ class ProcessManager(object):
         assert trained_model is not None
         assert input_queue is not None
         assert output_queue is not None
-        while True:
-            value = input_queue.get()
-            assert type(value) is tuple
-            assert len(value) == 2
-            request_id = value[0]
-            model_input = value[1]
-            validated_input = code_manager.validate_input(model_input)
-            output = code_manager.test(trained_model, validated_input)
-            output_queue.put({request_id: (name, output)})
+        waiting = True
+        while waiting:
+            if (not psutil.pid_exists(self.callerpid)) or (self.callerpid == self.parentpid):
+                print("Wow I'm exiting: %s" % self.callerpid)
+                sys.exit()
+            try:
+                value = input_queue.get(block=False)
+                assert type(value) is tuple
+                assert len(value) == 2
+                request_id = value[0]
+                model_input = value[1]
+                validated_input = code_manager.validate_input(model_input)
+                output = code_manager.test(trained_model, validated_input)
+                output_queue.put({request_id: (name, output)})
+            except queue.Empty:
+                continue
 
     def create_process(self, name):
         process = multiprocessing.Process(target=self.code, name=name, args=(self.code_manager, self.trained_model,
