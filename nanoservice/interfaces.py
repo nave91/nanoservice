@@ -8,6 +8,9 @@ except ImportError:
     from nanoservice.processmanager import ProcessManager
 
 
+logger = logging.getLogger('hal')
+
+
 class ServiceInterface:
 
     def __init__(self):
@@ -51,6 +54,9 @@ class ClientInterface:
 
 
     def register(self, CodeManager, callerpid, train=False, start=False, num_of_workers=1, **kwargs):
+        logger.info('Registering CodeManager: {code_manager} with client interface,'
+                    ' callerpid: {callerpid}'.format(code_manager=CodeManager,
+                                                                  callerpid=callerpid))
         self.connect()
         self.service_interface.create_process_manager(CodeManager, num_of_workers, callerpid)
         if train:
