@@ -1,5 +1,6 @@
 import psutil
 import os
+import logging
 from multiprocessing.managers import SyncManager
 
 try:
