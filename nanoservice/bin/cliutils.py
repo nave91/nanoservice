@@ -17,7 +17,7 @@ class Initialize(object):
         if self.code_dir != '':
             sys.path.append(self.code_dir)
         from multiprocessing.managers import SyncManager
-        from nanoservice.interfaces import ServiceInterface
+        from nanoservice.serviceinterface import ServiceInterface
         SyncManager.register('service_interface', ServiceInterface)
         service_manager = SyncManager(address=('localhost', 50000), authkey=b'Vf6x132R0W3Ogp')
         self.server = service_manager.get_server()

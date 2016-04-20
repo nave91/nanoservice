@@ -6,7 +6,7 @@ import psutil
 import logging
 
 
-logger = logging.getLogger('hal')
+logger = logging.getLogger('nanoservice')
 
 
 class Worker(dict):
@@ -44,11 +44,20 @@ class ProcessManager(object):
         else:
             False
 
-    def code(self, code_manager, trained_model, input_queue, output_queue, name):
+    def code(self, code_manager, trained_model, input_queue, output_queue, process_name):
+        """
+        This function is deployed as a new process.
+        :param code_manager: Extended CodeManager, for reference check codemanager.CodeManager.
+        :param trained_model: Trained analytical model (python object) which is held to be in memory.
+        :param input_queue: Multiprocessing queue object that stores input as tuples (request_id, validated_input)
+        :param output_queue: Multiprocessing queue object that returns dictionary {request_id: (process_name, output)}
+        :param process_name: Name of worker process that runs this code.
+        :return: None
+        """
         logger.info('Entered code of CodeManager: {code_manager}, '
                     'trained_model: {trained_model}, name: {name}'.format(code_manager=code_manager,
                                                                           trained_model=trained_model,
-                                                                          name=name))
+                                                                          name=process_name))
         assert code_manager is not None
         assert trained_model is not None
         assert input_queue is not None
@@ -56,25 +65,24 @@ class ProcessManager(object):
         waiting = True
         while waiting:
             if (not psutil.pid_exists(self.callerpid)) or (self.callerpid == self.parentpid):
-                logger.info('Killing process of CodeManager: {code_manager}, '
+                logger.warn('Killing process of CodeManager: {code_manager}, '
                             'trained_model: {trained_model}, name: {name}'.format(code_manager=code_manager,
                                                                           trained_model=trained_model,
-                                                                          name=name))
+                                                                          name=process_name))
                 sys.exit()
             try:
                 value = input_queue.get(block=False)
                 assert type(value) is tuple
                 assert len(value) == 2
                 request_id = value[0]
-                model_input = value[1]
-                validated_input = code_manager.validate_input(model_input)
+                validated_input = value[1]
                 output = code_manager.test(trained_model, validated_input)
-                output_queue.put({request_id: (name, output)})
+                output_queue.put({request_id: (process_name, output)})
             except queue.Empty:
                 continue
 
     def create_process(self, name):
-        logger.info('Creating Process for CodeManager: {code_manager}, '
+        logger.warn('Creating Process for CodeManager: {code_manager}, '
                     'name: {name}, callerpid: {callerpid}'.format(code_manager=self.code_manager,
                                                                   callerpid=self.callerpid,
                                                                   name=name))
@@ -93,8 +101,8 @@ class ProcessManager(object):
                     'callerpid: {callerpid}'.format(code_manager=self.code_manager,
                                                     callerpid=self.callerpid))
         for i in range(0, self.num_of_workers):
-            name = 'NanoProcess-{}'.format(i)
-            process = self.create_process(name)
+            process_name = 'NanoProcess-{}-{}'.format(self.code_manager, i)
+            process = self.create_process(process_name)
             self.workers[process.pid] = process
 
     def query(self, input):
