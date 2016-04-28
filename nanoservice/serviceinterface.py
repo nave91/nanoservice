@@ -36,8 +36,8 @@ class ServiceInterface:
     def train(self, name):
         return self.process_managers[name].train()
 
-    def get_workers(self, name):
-        return {worker.id(): pid for pid, worker in self.process_managers[name].workers.items()}
+    def get_workers(self):
+        return {id_: {worker.name: pid for pid, worker in process_manager.workers.items()} for id_, process_manager in self.process_managers.items()}
 
     def get_process_managers(self):
         return self.process_managers.keys()

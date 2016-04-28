@@ -30,8 +30,8 @@ class ClientInterface:
         if start:
             self.start_process_manager(CodeManager)
 
-    def get_workers(self, CodeManager):
-        return self.service_interface.get_workers(CodeManager.id())
+    def get_workers(self):
+        return self.service_interface.get_workers()
 
     def train(self, CodeManager):
         return self.service_interface.train(CodeManager.id())
@@ -42,11 +42,13 @@ class ClientInterface:
     def query(self, CodeManager, input):
         return self.service_interface.query(CodeManager.id(), input)
 
-    def controller(self, CodeManager):
+    def controller(self):
         controller = {}
-        workers = self.get_workers(CodeManager.id())
-        for name, pid in workers.items():
-            controller[name] = psutil.Process(pid)
+        workers = self.get_workers()
+        for project_name, nano_workers in workers.items():
+            controller.setdefault(project_name, {})
+            for name, pid in nano_workers.items():
+                controller[project_name][name] = psutil.Process(pid)
         return controller
 
 
