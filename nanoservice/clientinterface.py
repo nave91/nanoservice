@@ -26,15 +26,15 @@ class ClientInterface:
                                                      callerpid=callerpid))
         self.service_interface.create_process_manager(CodeManager, num_of_workers, callerpid)
         if train:
-            self.train(CodeManager)
+            self.load(CodeManager)
         if start:
             self.start_process_manager(CodeManager)
 
     def get_workers(self):
         return self.service_interface.get_workers()
 
-    def train(self, CodeManager):
-        return self.service_interface.train(CodeManager.id())
+    def load(self, CodeManager):
+        return self.service_interface.load(CodeManager.id())
 
     def start_process_manager(self, CodeManager):
         self.service_interface.start_process(CodeManager.id())

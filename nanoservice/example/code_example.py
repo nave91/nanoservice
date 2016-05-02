@@ -9,7 +9,7 @@ class MyCodeManager(CodeManager):
     def name(cls):
         return 'svc'
 
-    def train(self):
+    def load(self):
         # raise NotImplemented
         print("Entered worker")
         clf = SVC()
@@ -17,7 +17,7 @@ class MyCodeManager(CodeManager):
         clf.fit(iris.data, iris.target_names[iris.target])
         return clf
 
-    def test(self, trained_algorithm, input):
+    def evaluate(self, trained_algorithm, input):
         # raise NotImplemented
         return trained_algorithm.predict(input)
 

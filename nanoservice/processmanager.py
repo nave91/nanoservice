@@ -35,10 +35,10 @@ class ProcessManager(object):
         self.input_queue = input_queue
         self.output_queue = output_queue
 
-    def train(self):
+    def load(self):
         logger.info('Training on CodeManager: {code_manager} callerpid: {callerpid}'.format(code_manager=self.code_manager,
                                                                                             callerpid=self.callerpid))
-        self.trained_model = self.code_manager.train()
+        self.trained_model = self.code_manager.load()
         if self.trained_model:
             return True
         else:
@@ -76,7 +76,7 @@ class ProcessManager(object):
                 assert len(value) == 2
                 request_id = value[0]
                 validated_input = value[1]
-                output = code_manager.test(trained_model, validated_input)
+                output = code_manager.evaluate(trained_model, validated_input)
                 output_queue.put({request_id: (process_name, output)})
             except queue.Empty:
                 continue

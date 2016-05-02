@@ -1,7 +1,7 @@
 class CodeManager:
 
 
-    def train(self):
+    def load(self):
         raise NotImplemented
 
     def code(self, trained_algorithm, input):
