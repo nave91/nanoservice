@@ -71,7 +71,7 @@ class ProcessManager(object):
                                                                           name=process_name))
                 sys.exit()
             try:
-                value = input_queue.get(block=False)
+                value = input_queue.get(block=True)
                 assert type(value) is tuple
                 assert len(value) == 2
                 request_id = value[0]
