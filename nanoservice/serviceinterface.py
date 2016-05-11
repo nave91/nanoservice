@@ -43,5 +43,7 @@ class ServiceInterface:
         return self.process_managers.keys()
 
 
-SyncManager.register('service_interface', ServiceInterface)
-service_manager = SyncManager(address=('localhost', 50000), authkey=b'Vf6x132R0W3Ogp')
+def create_service_manager():
+    SyncManager.register('service_interface', ServiceInterface)
+    service_manager = SyncManager(address=('localhost', 50000), authkey=b'Vf6x132R0W3Ogp')
+    return service_manager

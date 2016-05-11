@@ -2,30 +2,33 @@ import psutil
 import logging, sys
 
 try:
-    from serviceinterface import service_manager
+    from serviceinterface import create_service_manager
 except ImportError:
-    from nanoservice.serviceinterface import service_manager
+    from nanoservice.serviceinterface import create_service_manager
 
 logger = logging.getLogger('nanoservice')
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 class ClientInterface:
 
-    def __init__(self):
+    def __init__(self, connect=False):
         self.service_interface = None
-        self.connect()
+        if connect:
+            self.connect()
 
     def connect(self):
+        service_manager = create_service_manager()
         service_manager.connect()
         self.service_interface = service_manager.service_interface()
 
-
-    def register(self, CodeManager, callerpid, train=False, start=False, num_of_workers=1, **kwargs):
+    def register(self, CodeManager, callerpid, load=False, start=False, num_of_workers=1, **kwargs):
         logger.info('Registering CodeManager: {code_manager} with client interface,'
                     ' callerpid: {callerpid}'.format(code_manager=CodeManager,
                                                      callerpid=callerpid))
+        if not self.service_interface:
+            raise RuntimeError('Not connected to nanoservice. Please call client_interface.connect().')
         self.service_interface.create_process_manager(CodeManager, num_of_workers, callerpid)
-        if train:
+        if load:
             self.load(CodeManager)
         if start:
             self.start_process_manager(CodeManager)

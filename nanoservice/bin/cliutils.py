@@ -1,8 +1,6 @@
 import argparse
 import sys
 
-# from nanoservice.interfaces import service_manager
-
 
 class Initialize(object):
 
@@ -16,10 +14,8 @@ class Initialize(object):
     def run(self):
         if self.code_dir != '':
             sys.path.append(self.code_dir)
-        from multiprocessing.managers import SyncManager
-        from nanoservice.serviceinterface import ServiceInterface
-        SyncManager.register('service_interface', ServiceInterface)
-        service_manager = SyncManager(address=('localhost', 50000), authkey=b'Vf6x132R0W3Ogp')
+        from nanoservice.serviceinterface import create_service_manager
+        service_manager = create_service_manager()
         self.server = service_manager.get_server()
         self.server.serve_forever()
 
